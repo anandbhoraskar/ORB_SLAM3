@@ -44,10 +44,16 @@ Tlr: !!opencv-matrix
   dt: f
   data: [0.9999710335197896, -0.003085907873266471, 0.006957678776835974, 0.0639765113592, 0.003112116118197612, 0.9999880917521713, -0.0037591338254934705, 0.000148267135955, -0.006945995582404035, 0.0037806780408845384, 0.9999687293205325, -0.000398468371714]
 
-# Lapping area between images
-Lapping.left: 0
-Lapping.right: 847
+# Camera resolution
+Camera.width: 848
+Camera.height: 480
 
+# Lapping area between images
+Camera.lappingBegin: 0
+Camera.lappingEnd: 847
+
+Camera2.lappingBegin: 0
+Camera2.lappingEnd: 847
 
 # Camera frames per second
 Camera.fps: 30.0
@@ -56,7 +62,7 @@ Camera.fps: 30.0
 Camera.RGB: 1
 
 # Close/Far threshold. Baseline times.
-ThDepth: 40
+ThDepth: 40.0
 
 Camera.bf: 18.238777
 
@@ -65,7 +71,7 @@ Camera.bf: 18.238777
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 1000
+ORBextractor.nFeatures: 2000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid
 ORBextractor.scaleFactor: 1.2
