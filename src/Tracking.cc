@@ -52,6 +52,7 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpAtlas(pAtlas), mnLastRelocFrameId(0), time_recently_lost(5.0),
     mnInitialFrameId(0), mbCreatedMap(false), mnFirstFrameId(0), mpCamera2(nullptr)
 {
+    mpMutexSample = new std::mutex();
     // Load camera parameters from settings file
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
@@ -1031,6 +1032,11 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
     f_track_times << t_track << endl;
 #endif
 
+    {
+        unique_lock<std::mutex> lock(*mpMutexSample);
+        mSamplePoints = mCurrentFrame.GetSamplePoints();
+//        cout << "mCurrentFrame.GetSamplePoints " << mSamplePoints.size() << endl;
+    }
     return mCurrentFrame.mTcw.clone();
 }
 
@@ -3896,6 +3902,12 @@ int Tracking::GetNumberDataset()
 int Tracking::GetMatchesInliers()
 {
     return mnMatchesInliers;
+}
+
+vector<cv::Mat> Tracking::GetSamplePoints() {
+    unique_lock<std::mutex> lock(*mpMutexSample);
+//    cout << "Tracking::GetSamplePoints " << mSamplePoints.size() << endl;
+    return mSamplePoints;
 }
 
 } //namespace ORB_SLAM

@@ -273,6 +273,9 @@ private:
 
     std::mutex *mpMutexImu;
 
+    vector<cv::Mat> mSamplePoints;
+    std::mutex *mpMutexSample;
+
 public:
     GeometricCamera* mpCamera, *mpCamera2;
 
@@ -318,6 +321,8 @@ public:
         }
         cout << "Point distribution in Frame: left-> " << left << " --- right-> " << right << endl;
     }
+
+    vector<cv::Mat> GetSamplePoints();
 };
 
 }// namespace ORB_SLAM

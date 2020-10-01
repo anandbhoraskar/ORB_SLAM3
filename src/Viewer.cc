@@ -289,6 +289,9 @@ void Viewer::Run()
         if(menuShowPoints)
             mpMapDrawer->DrawMapPoints();
 
+        //TODO(abhorask): Add toggle button
+        mpMapDrawer->DrawFramePoints();
+
         pangolin::FinishFrame();
 
         cv::Mat toShow;

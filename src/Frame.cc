@@ -60,7 +60,7 @@ Frame::Frame(const Frame &frame)
      mnId(frame.mnId), mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors), mNameFile(frame.mNameFile), mnDataset(frame.mnDataset),
-     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2), mpPrevFrame(frame.mpPrevFrame), mpLastKeyFrame(frame.mpLastKeyFrame), mbImuPreintegrated(frame.mbImuPreintegrated), mpMutexImu(frame.mpMutexImu),
+     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2), mpPrevFrame(frame.mpPrevFrame), mpLastKeyFrame(frame.mpLastKeyFrame), mbImuPreintegrated(frame.mbImuPreintegrated), mpMutexImu(frame.mpMutexImu), mpMutexSample(frame.mpMutexSample),
      mpCamera(frame.mpCamera), mpCamera2(frame.mpCamera2), Nleft(frame.Nleft), Nright(frame.Nright),
      monoLeft(frame.monoLeft), monoRight(frame.monoRight), mvLeftToRightMatch(frame.mvLeftToRightMatch),
      mvRightToLeftMatch(frame.mvRightToLeftMatch), mvStereo3Dpoints(frame.mvStereo3Dpoints),
@@ -90,6 +90,7 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
      mImuCalib(ImuCalib), mpImuPreintegrated(NULL), mpPrevFrame(pPrevF),mpImuPreintegratedFrame(NULL), mpReferenceKF(static_cast<KeyFrame*>(NULL)), mbImuPreintegrated(false),
      mpCamera(pCamera) ,mpCamera2(nullptr), mTimeStereoMatch(0), mTimeORB_Ext(0)
 {
+    mpMutexSample = new std::mutex();
     // Frame ID
     mnId=nNextId++;
 
@@ -194,6 +195,7 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
      mImuCalib(ImuCalib), mpImuPreintegrated(NULL), mpPrevFrame(pPrevF), mpImuPreintegratedFrame(NULL), mpReferenceKF(static_cast<KeyFrame*>(NULL)), mbImuPreintegrated(false),
      mpCamera(pCamera),mpCamera2(nullptr), mTimeStereoMatch(0), mTimeORB_Ext(0)
 {
+    mpMutexSample = new std::mutex();
     // Frame ID
     mnId=nNextId++;
 
@@ -216,7 +218,6 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
 
     mTimeORB_Ext = std::chrono::duration_cast<std::chrono::duration<double,std::milli> >(time_EndExtORB - time_StartExtORB).count();
 #endif
-
 
     N = mvKeys.size();
 
@@ -268,6 +269,24 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     monoRight = -1;
 
     AssignFeaturesToGrid();
+    
+    {
+        unique_lock<std::mutex> lock(*mpMutexSample);
+        const int nRows = 32, nCols = 64;
+        mSamplePoints.clear();
+        for(int r = 0; r<nRows; r++) {
+            for(int c = 0; c<nCols; c++) {
+                const float u = r*imDepth.rows / nRows;
+                const float v = c*imDepth.cols / nCols;
+                const float z = imDepth.at<float>(u,v);
+
+                const float x = (v-cx)*z*invfx;
+                const float y = (u-cy)*z*invfy;
+                cv::Mat x3Dc = (cv::Mat_<float>(3,1) << x, y, z);
+                mSamplePoints.push_back(x3Dc);
+            }
+        }
+    }
 }
 
 
@@ -277,6 +296,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
      mImuCalib(ImuCalib), mpImuPreintegrated(NULL),mpPrevFrame(pPrevF),mpImuPreintegratedFrame(NULL), mpReferenceKF(static_cast<KeyFrame*>(NULL)), mbImuPreintegrated(false), mpCamera(pCamera),
      mpCamera2(nullptr), mTimeStereoMatch(0), mTimeORB_Ext(0)
 {
+    mpMutexSample = new std::mutex();
     // Frame ID
     mnId=nNextId++;
 
@@ -449,6 +469,8 @@ void Frame::SetImuPoseVelocity(const cv::Mat &Rwb, const cv::Mat &twb, const cv:
 
 void Frame::UpdatePoseMatrices()
 {
+    unique_lock<std::mutex> lock(*mpMutexSample);
+//    cout << "UpdatePoseMatrices!!!" << endl;
     mRcw = mTcw.rowRange(0,3).colRange(0,3);
     mRwc = mRcw.t();
     mtcw = mTcw.rowRange(0,3).col(3);
@@ -477,15 +499,12 @@ cv::Mat Frame::GetImuPose()
 bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
 {
     if(Nleft == -1){
-        // cout << "\na";
         pMP->mbTrackInView = false;
         pMP->mTrackProjX = -1;
         pMP->mTrackProjY = -1;
 
         // 3D in absolute coordinates
         cv::Mat P = pMP->GetWorldPos();
-
-        // cout << "b";
 
         // 3D in camera coordinates
         const cv::Mat Pc = mRcw*P+mtcw;
@@ -499,14 +518,11 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
 
         const cv::Point2f uv = mpCamera->project(Pc);
 
-        // cout << "c";
-
         if(uv.x<mnMinX || uv.x>mnMaxX)
             return false;
         if(uv.y<mnMinY || uv.y>mnMaxY)
             return false;
 
-        // cout << "d";
         pMP->mTrackProjX = uv.x;
         pMP->mTrackProjY = uv.y;
 
@@ -519,12 +535,8 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
         if(dist<minDistance || dist>maxDistance)
             return false;
 
-        // cout << "e";
-
         // Check viewing angle
         cv::Mat Pn = pMP->GetNormal();
-
-        // cout << "f";
 
         const float viewCos = PO.dot(Pn)/dist;
 
@@ -534,21 +546,15 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
         // Predict scale in the image
         const int nPredictedLevel = pMP->PredictScale(dist,this);
 
-        // cout << "g";
-
         // Data used by the tracking
         pMP->mbTrackInView = true;
         pMP->mTrackProjX = uv.x;
         pMP->mTrackProjXR = uv.x - mbf*invz;
 
         pMP->mTrackDepth = Pc_dist;
-        // cout << "h";
-
         pMP->mTrackProjY = uv.y;
         pMP->mnTrackScaleLevel= nPredictedLevel;
         pMP->mTrackViewCos = viewCos;
-
-        // cout << "i";
 
         return true;
     }
@@ -588,8 +594,6 @@ bool Frame::ProjectPointDistort(MapPoint* pMP, cv::Point2f &kp, float &u, float 
     const float invz = 1.0f/PcZ;
     u=fx*PcX*invz+cx;
     v=fy*PcY*invz+cy;
-
-    // cout << "c";
 
     if(u<mnMinX || u>mnMaxX)
         return false;
@@ -1101,6 +1105,7 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     std::chrono::steady_clock::time_point t4 = std::chrono::steady_clock::now();
 
     mpMutexImu = new std::mutex();
+    mpMutexSample = new std::mutex();
 
     UndistortKeyPoints();
     std::chrono::steady_clock::time_point t5 = std::chrono::steady_clock::now();
@@ -1238,6 +1243,17 @@ bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight)
 
 cv::Mat Frame::UnprojectStereoFishEye(const int &i){
     return mRwc*mvStereo3Dpoints[i]+mOw;
+}
+vector<cv::Mat> Frame::GetSamplePoints() {
+    unique_lock<std::mutex> lock(*mpMutexSample);
+    if(mRcw.empty() || mOw.empty() || mRcw.type() == CV_8UC1 || mOw.type() == CV_8UC1) {
+        vector<cv::Mat> temp;
+        return temp;
+    }
+    for(auto& x3Dc:mSamplePoints) {
+        x3Dc = mRwc*x3Dc + mOw;
+    }
+    return mSamplePoints;
 }
 
 } //namespace ORB_SLAM

@@ -23,12 +23,14 @@
 #include"Atlas.h"
 #include"MapPoint.h"
 #include"KeyFrame.h"
+#include"Tracking.h"
 #include<pangolin/pangolin.h>
 
 #include<mutex>
 
 namespace ORB_SLAM3
 {
+class Tracking;
 
 class MapDrawer
 {
@@ -36,7 +38,11 @@ public:
     MapDrawer(Atlas* pAtlas, const string &strSettingPath);
 
     Atlas* mpAtlas;
+    
+    Tracking* mpTracker;
+    void SetTracker(Tracking* pTracker);
 
+    void DrawFramePoints();
     void DrawMapPoints();
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const bool bDrawInertialGraph);
     void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc);

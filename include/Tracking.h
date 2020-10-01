@@ -100,6 +100,9 @@ public:
     void NewDataset();
     int GetNumberDataset();
     int GetMatchesInliers();
+
+    // For visualizing depthmap
+    vector<cv::Mat> GetSamplePoints();
 public:
 
     // Tracking states
@@ -219,6 +222,10 @@ protected:
     // Vector of IMU measurements from previous to current frame (to be filled by PreintegrateIMU)
     std::vector<IMU::Point> mvImuFromLastFrame;
     std::mutex mMutexImuQueue;
+
+    // For displaying depthmap in vis
+    vector<cv::Mat> mSamplePoints;
+    std::mutex *mpMutexSample;
 
     // Imu calibration parameters
     IMU::Calib *mpImuCalib;

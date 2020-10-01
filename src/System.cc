@@ -20,6 +20,8 @@
 
 #include "System.h"
 #include "Converter.h"
+// #include "MapDrawer.h"
+// #include "Tracking.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
@@ -213,6 +215,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     mpLoopCloser->SetTracker(mpTracker);
     mpLoopCloser->SetLocalMapper(mpLocalMapper);
+
+    mpMapDrawer->SetTracker(mpTracker);
 
     // Fix verbosity
     Verbose::SetTh(Verbose::VERBOSITY_QUIET);

@@ -131,6 +131,8 @@ public:
     MapPoint(const double invDepth, cv::Point2f uv_init, KeyFrame* pRefKF, KeyFrame* pHostKF, Map* pMap);
     MapPoint(const cv::Mat &Pos,  Map* pMap, Frame* pFrame, const int &idxF);
 
+    MapPoint(MapPoint&& other) : mWorldPos(other.mWorldPos) {}
+
     void SetWorldPos(const cv::Mat &Pos);
 
     cv::Mat GetWorldPos();

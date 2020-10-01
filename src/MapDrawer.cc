@@ -120,6 +120,36 @@ bool MapDrawer::ParseViewerParamFile(cv::FileStorage &fSettings)
     return !b_miss_params;
 }
 
+void MapDrawer::DrawFramePoints()
+{
+    const vector<cv::Mat> &framePoints = mpTracker->GetSamplePoints();
+    // const vector<cv::Mat> &framePoints = mpAtlas->GetSamplePoints();
+
+     if(framePoints.empty()) {
+         cout << "empty framepoints" << endl;
+         return;
+     }
+     else {
+//         cout << "framePoints[0] = " << framePoints[0] << endl;
+     }
+
+     glPointSize(mPointSize);
+     glBegin(GL_POINTS);
+//     glColor3f(1.0,0.0,1.0);
+      glColor4f(0.0,0.0,1.0,0.5);
+
+     for(auto sit=framePoints.begin(), send=framePoints.end(); sit!=send; sit++)
+     {
+         // if((*sit)->isBad())
+         //     continue;
+         cv::Mat pos = (*sit);
+         glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+
+     }
+
+     glEnd();
+}
+
 void MapDrawer::DrawMapPoints()
 {
     const vector<MapPoint*> &vpMPs = mpAtlas->GetAllMapPoints();
@@ -539,6 +569,11 @@ void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M, pangolin
         MTwwp.SetIdentity();
     }
 
+}
+
+void MapDrawer::SetTracker(Tracking *pTracker)
+{
+    mpTracker=pTracker;
 }
 
 } //namespace ORB_SLAM
