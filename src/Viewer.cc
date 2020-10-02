@@ -154,6 +154,7 @@ void Viewer::Run()
     pangolin::Var<bool> menuReset("menu.Reset",false,false);
     pangolin::Var<bool> menuStepByStep("menu.Step By Step",false,true);  // false, true
     pangolin::Var<bool> menuStep("menu.Step",false,false);
+    pangolin::Var<bool> menuShowDepthMap("menu.Show Depth Map",true,true);
 
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
@@ -289,8 +290,8 @@ void Viewer::Run()
         if(menuShowPoints)
             mpMapDrawer->DrawMapPoints();
 
-        //TODO(abhorask): Add toggle button
-        mpMapDrawer->DrawFramePoints();
+        if(menuShowDepthMap)
+            mpMapDrawer->DrawDepthMap();
 
         pangolin::FinishFrame();
 
@@ -315,6 +316,7 @@ void Viewer::Run()
             menuShowKeyFrames = true;
             menuShowPoints = true;
             menuLocalizationMode = false;
+            menuShowDepthMap = true;
             if(bLocalizationMode)
                 mpSystem->DeactivateLocalizationMode();
             bLocalizationMode = false;

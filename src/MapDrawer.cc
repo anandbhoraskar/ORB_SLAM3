@@ -120,7 +120,7 @@ bool MapDrawer::ParseViewerParamFile(cv::FileStorage &fSettings)
     return !b_miss_params;
 }
 
-void MapDrawer::DrawFramePoints()
+void MapDrawer::DrawDepthMap()
 {
     const vector<cv::Mat> &framePoints = mpTracker->GetSamplePoints();
     // const vector<cv::Mat> &framePoints = mpAtlas->GetSamplePoints();
