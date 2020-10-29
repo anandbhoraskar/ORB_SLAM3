@@ -102,7 +102,7 @@ public:
 
     // Check if a MapPoint is in the frustum of the camera
     // and fill variables of the MapPoint to be used by the tracking
-    bool isInFrustum(MapPoint* pMP, float viewingCosLimit);
+    bool isInFrustum(MapPoint* pMP, float viewingCosLimit, const cv::Mat& imDepth);
 
     bool ProjectPointDistort(MapPoint* pMP, cv::Point2f &kp, float &u, float &v);
 
@@ -304,7 +304,7 @@ public:
     //Stereo fisheye
     void ComputeStereoFishEyeMatches();
 
-    bool isInFrustumChecks(MapPoint* pMP, float viewingCosLimit, bool bRight = false);
+    bool isInFrustumChecks(MapPoint* pMP, float viewingCosLimit, bool bRight, const cv::Mat& imDepth);
 
     cv::Mat UnprojectStereoFishEye(const int &i);
 

@@ -276,12 +276,12 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
         mSamplePoints.clear();
         for(int r = 0; r<nRows; r++) {
             for(int c = 0; c<nCols; c++) {
-                const float u = r*imDepth.rows / nRows;
-                const float v = c*imDepth.cols / nCols;
-                const float z = imDepth.at<float>(u,v);
+                const float u = c*imDepth.cols / nCols;
+                const float v = r*imDepth.rows / nRows;
+                const float z = imDepth.at<float>(v,u);
 
-                const float x = (v-cx)*z*invfx;
-                const float y = (u-cy)*z*invfy;
+                const float x = (u-cx)*z*invfx;
+                const float y = (v-cy)*z*invfy;
                 cv::Mat x3Dc = (cv::Mat_<float>(3,1) << x, y, z);
                 mSamplePoints.push_back(x3Dc);
             }
@@ -496,7 +496,7 @@ cv::Mat Frame::GetImuPose()
 }
 
 
-bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
+bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit, const cv::Mat& imDepth)
 {
     if(Nleft == -1){
         pMP->mbTrackInView = false;
@@ -556,6 +556,8 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
         pMP->mnTrackScaleLevel= nPredictedLevel;
         pMP->mTrackViewCos = viewCos;
 
+        float depthMapDepth = imDepth.at<float>(uv.y, uv.x);
+        pMP->CheckDynamic(PcZ, depthMapDepth);
         return true;
     }
     else{
@@ -564,8 +566,8 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
         pMP -> mnTrackScaleLevel = -1;
         pMP -> mnTrackScaleLevelR = -1;
 
-        pMP->mbTrackInView = isInFrustumChecks(pMP,viewingCosLimit);
-        pMP->mbTrackInViewR = isInFrustumChecks(pMP,viewingCosLimit,true);
+        pMP->mbTrackInView = isInFrustumChecks(pMP,viewingCosLimit, false, imDepth);
+        pMP->mbTrackInViewR = isInFrustumChecks(pMP,viewingCosLimit,true, imDepth);
 
         return pMP->mbTrackInView || pMP->mbTrackInViewR;
     }
@@ -1166,7 +1168,7 @@ void Frame::ComputeStereoFishEyeMatches() {
     }
 }
 
-bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight) {
+bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight, const cv::Mat& imDepth) {
     // 3D in absolute coordinates
     cv::Mat P = pMP->GetWorldPos();
 
@@ -1237,7 +1239,9 @@ bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight)
         pMP->mTrackViewCos = viewCos;
         pMP->mTrackDepth = Pc_dist;
     }
-
+    
+    float depthMapDepth = imDepth.at<float>(uv.y, uv.x);
+    pMP->CheckDynamic(PcZ, depthMapDepth);
     return true;
 }
 

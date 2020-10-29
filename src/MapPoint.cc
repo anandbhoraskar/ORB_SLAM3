@@ -31,7 +31,7 @@ MapPoint::MapPoint():
     mnFirstKFid(0), mnFirstFrame(0), nObs(0), mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mnVisible(1), mnFound(1), mbBad(false),
-    mpReplaced(static_cast<MapPoint*>(NULL))
+    mpReplaced(static_cast<MapPoint*>(NULL)), isDynamic(false)
 {
     mpReplaced = static_cast<MapPoint*>(NULL);
 }
@@ -41,7 +41,7 @@ MapPoint::MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map* pMap):
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
     mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap),
-    mnOriginMapId(pMap->GetId())
+    mnOriginMapId(pMap->GetId()), isDynamic(false)
 {
     Pos.copyTo(mWorldPos);
     mNormalVector = cv::Mat::zeros(3,1,CV_32F);
@@ -59,7 +59,7 @@ MapPoint::MapPoint(const double invDepth, cv::Point2f uv_init, KeyFrame* pRefKF,
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
     mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap),
-    mnOriginMapId(pMap->GetId())
+    mnOriginMapId(pMap->GetId()), isDynamic(false)
 {
     mInvDepth=invDepth;
     mInitU=(double)uv_init.x;
@@ -78,7 +78,7 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
     mnFirstKFid(-1), mnFirstFrame(pFrame->mnId), nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0),
     mnBALocalForKF(0), mnFuseCandidateForKF(0),mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(static_cast<KeyFrame*>(NULL)), mnVisible(1),
-    mnFound(1), mbBad(false), mpReplaced(NULL), mpMap(pMap), mnOriginMapId(pMap->GetId())
+    mnFound(1), mbBad(false), mpReplaced(NULL), mpMap(pMap), mnOriginMapId(pMap->GetId()), isDynamic(false)
 {
     Pos.copyTo(mWorldPos);
     cv::Mat Ow;
@@ -629,6 +629,14 @@ void MapPoint::PostLoad(map<long unsigned int, KeyFrame*>& mpKFid, map<long unsi
 
     mBackupObservationsId1.clear();
     mBackupObservationsId2.clear();
+}
+
+void MapPoint::CheckDynamic(float trackZ, float depthMapZ) {
+    constexpr float threshold = 0.2; 
+    if(trackZ < (1-threshold)*depthMapZ) {
+        isDynamic = true;
+    }
+    // cout << "Check Dynamic" << trackZ << " " << depthMapZ << "\n";
 }
 
 } //namespace ORB_SLAM

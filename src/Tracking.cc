@@ -1003,6 +1003,7 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
 
     if((fabs(mDepthMapFactor-1.0f)>1e-5) || imDepth.type()!=CV_32F)
         imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
+    mImDepth = imDepth;
 
     std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
     mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,mpCamera);
@@ -2950,7 +2951,7 @@ void Tracking::SearchLocalPoints()
         if(pMP->isBad())
             continue;
         // Project (this fills MapPoint variables for matching)
-        if(mCurrentFrame.isInFrustum(pMP,0.5))
+        if(mCurrentFrame.isInFrustum(pMP,0.5, mImDepth))
         {
             pMP->IncreaseVisible();
             nToMatch++;

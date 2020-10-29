@@ -157,6 +157,8 @@ void MapDrawer::DrawMapPoints()
 
     set<MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
 
+    vector<MapPoint*> dynamicPoints;
+
     if(vpMPs.empty())
         return;
 
@@ -169,7 +171,12 @@ void MapDrawer::DrawMapPoints()
         if(vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
             continue;
         cv::Mat pos = vpMPs[i]->GetWorldPos();
-        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+        if(vpMPs[i]->isDynamic) {
+            dynamicPoints.push_back(vpMPs[i]);
+        }
+        else {
+            glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+        }
     }
     glEnd();
 
@@ -181,12 +188,32 @@ void MapDrawer::DrawMapPoints()
     {
         if((*sit)->isBad())
             continue;
-        cv::Mat pos = (*sit)->GetWorldPos();
-        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
-
+        if((*sit)->isDynamic) {
+            dynamicPoints.push_back((*sit));
+        }
+        else {
+            cv::Mat pos = (*sit)->GetWorldPos();
+            glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+        }
     }
 
     glEnd();
+    
+
+    glPointSize(mPointSize);
+    glBegin(GL_POINTS);
+    glColor3f(0.0,1.0,0.0);
+
+    for(auto dit=dynamicPoints.begin(), dend=dynamicPoints.end(); dit!=dend; dit++)
+    {
+        if((*dit)->isBad())
+            continue;
+        cv::Mat pos = (*dit)->GetWorldPos();
+        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+    }
+
+    glEnd();
+    
 }
 
 void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const bool bDrawInertialGraph)
