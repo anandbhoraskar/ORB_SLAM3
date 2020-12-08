@@ -186,7 +186,8 @@ public:
 
 public:
     // Dynamic point detection
-    bool isDynamic;
+    bool isDynamic; // Dynamic represents to-prune points
+    bool isUnknownDepth;
 
     long unsigned int mnId;
     static long unsigned int nNextId;

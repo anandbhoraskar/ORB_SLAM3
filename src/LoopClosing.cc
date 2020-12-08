@@ -59,6 +59,7 @@ void LoopClosing::Run()
 
     while(1)
     {
+        // cout << "LoopClosing run:62" << endl;
         //NEW LOOP AND MERGE DETECTION ALGORITHM
         //----------------------------
         if(CheckNewKeyFrames())
@@ -222,6 +223,7 @@ void LoopClosing::Run()
             }
             mpLastCurrentKF = mpCurrentKF;
         }
+        // cout << "LoopClosing run:225" << endl;
 
         ResetIfRequested();
 
@@ -229,6 +231,7 @@ void LoopClosing::Run()
             // cout << "LC: Finish requested" << endl;
             break;
         }
+        // cout << "LoopClosing run:232, before usleep 5000" << endl;
 
         usleep(5000);
     }
@@ -1251,6 +1254,7 @@ void LoopClosing::CorrectLoop()
 
 void LoopClosing::MergeLocal()
 {
+    // cout << "In mergelocal" << endl;
     Verbose::PrintMess("MERGE-VISUAL: Merge Visual detected!!!!", Verbose::VERBOSITY_NORMAL);
     //mpTracker->SetStepByStep(true);
 
@@ -1827,7 +1831,9 @@ void LoopClosing::MergeLocal()
         // Optimize graph (and update the loop position for each element form the begining to the end)
         if(mpTracker->mSensor != System::MONOCULAR)
         {
+            // cout << "before opt e graph" << endl;
             Optimizer::OptimizeEssentialGraph(mpCurrentKF, vpMergeConnectedKFs, vpLocalCurrentWindowKFs, vpCurrentMapKFs, vpCurrentMapMPs);
+            // cout << "after opt e graph" << endl;
         }
 
 
@@ -1895,6 +1901,7 @@ void LoopClosing::MergeLocal()
 
     mpAtlas->RemoveBadMaps();
 
+    // cout << "Done mergelocal" << endl;
 }
 
 void LoopClosing::printReprojectionError(set<KeyFrame*> &spLocalWindowKFs, KeyFrame* mpCurrentKF, string &name)

@@ -1062,9 +1062,9 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 
         vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
         optimizer.initializeOptimization(0);
-//        cout << "begin optimize" << endl;
+        //  cout << "begin optimize" << endl;
         optimizer.optimize(its[it]);
-//        cout << "end optimize" << endl;
+        //  cout << "end optimize" << endl;
 
         nBad=0;
         for(size_t i=0, iend=vpEdgesMono.size(); i<iend; i++)
@@ -1076,6 +1076,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
             if(pFrame->mvbOutlier[idx])
             {
                 e->computeError();
+
             }
 
             const float chi2 = e->chi2();

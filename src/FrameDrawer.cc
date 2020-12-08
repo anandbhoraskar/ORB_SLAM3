@@ -41,7 +41,7 @@ cv::Mat FrameDrawer::DrawFrame(bool bOldFeatures)
     vector<cv::KeyPoint> vIniKeys; // Initialization: KeyPoints in reference frame
     vector<int> vMatches; // Initialization: correspondeces with reference keypoints
     vector<cv::KeyPoint> vCurrentKeys; // KeyPoints in current frame
-    vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
+    vector<bool> vbVO, vbMap, vbToPrune; // Tracked MapPoints in current frame
     vector<pair<cv::Point2f, cv::Point2f> > vTracks;
     int state; // Tracking state
 
@@ -76,6 +76,7 @@ cv::Mat FrameDrawer::DrawFrame(bool bOldFeatures)
             vCurrentKeys = mvCurrentKeys;
             vbVO = mvbVO;
             vbMap = mvbMap;
+            vbToPrune = mvbToPrune;
 
             currentFrame = mCurrentFrame;
             vpLocalMap = mvpLocalMap;
@@ -130,14 +131,19 @@ cv::Mat FrameDrawer::DrawFrame(bool bOldFeatures)
                 // This is a match to a MapPoint in the map
                 if(vbMap[i])
                 {
-                    cv::rectangle(im,pt1,pt2,cv::Scalar(0,255,0));
-                    cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,255,0),-1);
+                    cv::Scalar color = cv::Scalar(255,255,0);
+                    // cv::Scalar color = cv::Scalar(0,0,255);
+                    // if(vbToPrune[i]) {
+                    //     color = cv::Scalar(0,255,0);
+                    // }
+                    cv::rectangle(im,pt1,pt2,color);
+                    cv::circle(im,vCurrentKeys[i].pt,2,color,-1);
                     mnTracked++;
                 }
                 else // This is match to a "visual odometry" MapPoint created in the last frame
                 {
                     cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
-                    cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(255,0,0),-1);
+                    cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
                     mnTrackedVO++;
                 }
             }
@@ -274,7 +280,7 @@ cv::Mat FrameDrawer::DrawRightFrame()
     vector<cv::KeyPoint> vIniKeys; // Initialization: KeyPoints in reference frame
     vector<int> vMatches; // Initialization: correspondeces with reference keypoints
     vector<cv::KeyPoint> vCurrentKeys; // KeyPoints in current frame
-    vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
+    vector<bool> vbVO, vbMap, vbToPrune; // Tracked MapPoints in current frame
     int state; // Tracking state
 
     //Copy variables within scoped mutex
@@ -297,6 +303,7 @@ cv::Mat FrameDrawer::DrawRightFrame()
             vCurrentKeys = mvCurrentKeysRight;
             vbVO = mvbVO;
             vbMap = mvbMap;
+            vbToPrune = mvbToPrune;
         }
         else if(mState==Tracking::LOST)
         {
@@ -420,6 +427,7 @@ void FrameDrawer::Update(Tracking *pTracker)
     // cout << "Number of matches in frame: " << N << endl;
     mvbVO = vector<bool>(N,false);
     mvbMap = vector<bool>(N,false);
+    mvbToPrune = vector<bool>(N,false);
     mbOnlyTracking = pTracker->mbOnlyTracking;
 
     //Variables for the new visualization
@@ -458,6 +466,10 @@ void FrameDrawer::Update(Tracking *pTracker)
                         mvbMap[i]=true;
                     else
                         mvbVO[i]=true;
+                    
+                    if(pMP->isDynamic) {
+                        mvbToPrune[i] = true; 
+                    }
 
                     //mvpMatchedMPs.push_back(pMP);
                     //mvMatchedKeys.push_back(mvCurrentKeys[i]);

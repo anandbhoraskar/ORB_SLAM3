@@ -51,6 +51,8 @@ public:
     void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M, pangolin::OpenGlMatrix &MOw);
     void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M, pangolin::OpenGlMatrix &MOw, pangolin::OpenGlMatrix &MTwwp);
 
+    bool mShowToPrunePoints;
+
 private:
 
     bool ParseViewerParamFile(cv::FileStorage &fSettings);

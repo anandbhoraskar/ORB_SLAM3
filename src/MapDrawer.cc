@@ -158,6 +158,7 @@ void MapDrawer::DrawMapPoints()
     set<MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
 
     vector<MapPoint*> dynamicPoints;
+    vector<MapPoint*> unknownDepthPoints;
 
     if(vpMPs.empty())
         return;
@@ -173,6 +174,9 @@ void MapDrawer::DrawMapPoints()
         cv::Mat pos = vpMPs[i]->GetWorldPos();
         if(vpMPs[i]->isDynamic) {
             dynamicPoints.push_back(vpMPs[i]);
+        }
+        else if(vpMPs[i]->isUnknownDepth) {
+            unknownDepthPoints.push_back(vpMPs[i]);
         }
         else {
             glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
@@ -191,6 +195,9 @@ void MapDrawer::DrawMapPoints()
         if((*sit)->isDynamic) {
             dynamicPoints.push_back((*sit));
         }
+        else if((*sit)->isUnknownDepth) {
+            unknownDepthPoints.push_back((*sit));
+        }
         else {
             cv::Mat pos = (*sit)->GetWorldPos();
             glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
@@ -202,14 +209,33 @@ void MapDrawer::DrawMapPoints()
 
     glPointSize(mPointSize);
     glBegin(GL_POINTS);
-    glColor3f(0.0,1.0,0.0);
+    glColor4f(0.0,1.0,0.0, 1.0);
 
-    for(auto dit=dynamicPoints.begin(), dend=dynamicPoints.end(); dit!=dend; dit++)
-    {
-        if((*dit)->isBad())
-            continue;
-        cv::Mat pos = (*dit)->GetWorldPos();
-        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+    if(mShowToPrunePoints) {
+        for(auto dit=dynamicPoints.begin(), dend=dynamicPoints.end(); dit!=dend; dit++)
+        {
+            if((*dit)->isBad())
+                continue;
+            cv::Mat pos = (*dit)->GetWorldPos();
+            glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+        }
+    }
+
+    glEnd();
+    
+
+    glPointSize(mPointSize);
+    glBegin(GL_POINTS);
+    glColor4f(0.0,1.0,1.0, 0.4);
+
+    if(mShowToPrunePoints) {
+        for(auto dit=unknownDepthPoints.begin(), dend=unknownDepthPoints.end(); dit!=dend; dit++)
+        {
+            if((*dit)->isBad())
+                continue;
+            cv::Mat pos = (*dit)->GetWorldPos();
+            glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+        }
     }
 
     glEnd();

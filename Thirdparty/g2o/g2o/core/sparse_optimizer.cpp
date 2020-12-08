@@ -198,8 +198,14 @@ namespace g2o{
 
   bool SparseOptimizer::initializeOptimization(int level){
     HyperGraph::VertexSet vset;
-    for (VertexIDMap::iterator it=vertices().begin(); it!=vertices().end(); ++it)
+    // cout << "Begin Adding to vset level = " << level << endl;
+    int i = 0;
+    for (VertexIDMap::iterator it=vertices().begin(); it!=vertices().end(); ++it) {
+      // cout << i++ << endl;
       vset.insert(it->second);
+      // cout << i << endl;
+    }
+    // cout << "add to vset done" << endl;
     return initializeOptimization(vset,level);
   }
 

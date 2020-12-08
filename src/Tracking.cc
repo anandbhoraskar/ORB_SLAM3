@@ -1011,7 +1011,7 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
     mCurrentFrame.mNameFile = filename;
     mCurrentFrame.mnDataset = mnNumDataset;
 
-
+    cout << (filename);
     Track();
 
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
@@ -1036,7 +1036,6 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
     {
         unique_lock<std::mutex> lock(*mpMutexSample);
         mSamplePoints = mCurrentFrame.GetSamplePoints();
-//        cout << "mCurrentFrame.GetSamplePoints " << mSamplePoints.size() << endl;
     }
     return mCurrentFrame.mTcw.clone();
 }
@@ -2940,6 +2939,12 @@ void Tracking::SearchLocalPoints()
     }
 
     int nToMatch=0;
+
+    vector<MapPoint*> all_points = mpAtlas->GetAllMapPoints();
+    for(vector<MapPoint*>::iterator vit=all_points.begin(), vend=all_points.end(); vit!=vend; vit++) {
+        MapPoint* pMP = *vit;
+        mCurrentFrame.isInFrustum(pMP,0.5, mImDepth);
+    }
 
     // Project points in frame and check its visibility
     for(vector<MapPoint*>::iterator vit=mvpLocalMapPoints.begin(), vend=mvpLocalMapPoints.end(); vit!=vend; vit++)

@@ -44,6 +44,7 @@ cv::BFMatcher Frame::BFmatcher = cv::BFMatcher(cv::NORM_HAMMING);
 
 Frame::Frame(): mpcpi(NULL), mpImuPreintegrated(NULL), mpPrevFrame(NULL), mpImuPreintegratedFrame(NULL), mpReferenceKF(static_cast<KeyFrame*>(NULL)), mbImuPreintegrated(false)
 {
+    mpMutexSample = new mutex();
 }
 
 
@@ -283,7 +284,8 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
                 const float x = (u-cx)*z*invfx;
                 const float y = (v-cy)*z*invfy;
                 cv::Mat x3Dc = (cv::Mat_<float>(3,1) << x, y, z);
-                mSamplePoints.push_back(x3Dc);
+                if(z>0)
+                    mSamplePoints.push_back(x3Dc);
             }
         }
     }
@@ -523,6 +525,9 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit, const cv::Mat& imD
         if(uv.y<mnMinY || uv.y>mnMaxY)
             return false;
 
+        float depthMapDepth = imDepth.at<float>(uv.y, uv.x);
+        pMP->CheckDynamic(PcZ, depthMapDepth);
+
         pMP->mTrackProjX = uv.x;
         pMP->mTrackProjY = uv.y;
 
@@ -556,8 +561,6 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit, const cv::Mat& imD
         pMP->mnTrackScaleLevel= nPredictedLevel;
         pMP->mTrackViewCos = viewCos;
 
-        float depthMapDepth = imDepth.at<float>(uv.y, uv.x);
-        pMP->CheckDynamic(PcZ, depthMapDepth);
         return true;
     }
     else{
@@ -1205,6 +1208,9 @@ bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight,
     if(uv.y<mnMinY || uv.y>mnMaxY)
         return false;
 
+    float depthMapDepth = imDepth.at<float>(uv.y, uv.x);
+    pMP->CheckDynamic(PcZ, depthMapDepth);
+
     // Check distance is in the scale invariance region of the MapPoint
     const float maxDistance = pMP->GetMaxDistanceInvariance();
     const float minDistance = pMP->GetMinDistanceInvariance();
@@ -1240,8 +1246,6 @@ bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight,
         pMP->mTrackDepth = Pc_dist;
     }
     
-    float depthMapDepth = imDepth.at<float>(uv.y, uv.x);
-    pMP->CheckDynamic(PcZ, depthMapDepth);
     return true;
 }
 
@@ -1249,6 +1253,8 @@ cv::Mat Frame::UnprojectStereoFishEye(const int &i){
     return mRwc*mvStereo3Dpoints[i]+mOw;
 }
 vector<cv::Mat> Frame::GetSamplePoints() {
+    if(mpMutexSample==0) {
+    }
     unique_lock<std::mutex> lock(*mpMutexSample);
     if(mRcw.empty() || mOw.empty() || mRcw.type() == CV_8UC1 || mOw.type() == CV_8UC1) {
         vector<cv::Mat> temp;

@@ -632,9 +632,18 @@ void MapPoint::PostLoad(map<long unsigned int, KeyFrame*>& mpKFid, map<long unsi
 }
 
 void MapPoint::CheckDynamic(float trackZ, float depthMapZ) {
-    constexpr float threshold = 0.2; 
-    if(trackZ < (1-threshold)*depthMapZ) {
+    constexpr float threshold = 0.1;
+    if(depthMapZ == 0) {
+        isUnknownDepth = true;
+    }
+    else {
+        isUnknownDepth = false;
+    }
+    if(trackZ < (1-threshold)*depthMapZ && depthMapZ!=0) {
         isDynamic = true;
+    }
+    else {
+        isDynamic = false;
     }
     // cout << "Check Dynamic" << trackZ << " " << depthMapZ << "\n";
 }

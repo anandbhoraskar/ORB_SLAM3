@@ -155,6 +155,7 @@ void Viewer::Run()
     pangolin::Var<bool> menuStepByStep("menu.Step By Step",false,true);  // false, true
     pangolin::Var<bool> menuStep("menu.Step",false,false);
     pangolin::Var<bool> menuShowDepthMap("menu.Show Depth Map",true,true);
+    pangolin::Var<bool> menuShowToPrunePoints("menu.Show To-Prune Points",true,true);
 
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
@@ -287,8 +288,10 @@ void Viewer::Run()
         mpMapDrawer->DrawCurrentCamera(Twc);
         if(menuShowKeyFrames || menuShowGraph || menuShowInertialGraph)
             mpMapDrawer->DrawKeyFrames(menuShowKeyFrames,menuShowGraph, menuShowInertialGraph);
-        if(menuShowPoints)
+        if(menuShowPoints) {
+            mpMapDrawer->mShowToPrunePoints = menuShowToPrunePoints;
             mpMapDrawer->DrawMapPoints();
+        }
 
         if(menuShowDepthMap)
             mpMapDrawer->DrawDepthMap();

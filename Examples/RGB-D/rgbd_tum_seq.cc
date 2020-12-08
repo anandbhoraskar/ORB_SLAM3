@@ -114,6 +114,7 @@ int main(int argc, char **argv)
 
         for(int ni=0; ni<nImages[seq]; ni++, proccIm++)
         {
+            // cout << vvstrImageFilenamesRGB[seq][ni] << endl;
             // Read image and depthmap from file
             imRGB = cv::imread(string(argv[3 + seq*2])+"/"+vvstrImageFilenamesRGB[seq][ni],cv::IMREAD_UNCHANGED);
             imD = cv::imread(string(argv[3 + seq*2])+"/"+vvstrImageFilenamesD[seq][ni],cv::IMREAD_UNCHANGED);
