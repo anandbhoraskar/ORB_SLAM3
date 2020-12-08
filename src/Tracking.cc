@@ -620,7 +620,7 @@ bool Tracking::ParseCamParamFile(cv::FileStorage &fSettings)
         std::cerr << "Check an example configuration file with the desired sensor" << std::endl;
     }
 
-    if(mSensor==System::STEREO || mSensor==System::IMU_STEREO)
+    if(mSensor==System::STEREO || mSensor==System::IMU_STEREO || mSensor==System::RGBD)
     {
         cv::FileNode node = fSettings["Camera.bf"];
         if(!node.empty() && node.isReal())
@@ -662,7 +662,7 @@ bool Tracking::ParseCamParamFile(cv::FileStorage &fSettings)
         {
             mThDepth = node.real();
             mThDepth = mbf*mThDepth/fx;
-            cout << endl << "Depth Threshold (Close/Far Points): " << mThDepth << endl;
+            cout << endl << "mbf:" << mbf << "fx:" << fx << ", Depth Threshold (Close/Far Points): " << mThDepth << endl;
         }
         else
         {
