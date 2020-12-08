@@ -115,6 +115,9 @@ int main(int argc, char **argv)
             usleep((T-ttrack)*1e6);
     }
 
+    cout << "Sleeping for 10s" << endl;
+    std::this_thread::sleep_for(std::chrono::microseconds(10000));
+
     // Stop all threads
     SLAM.Shutdown();
 

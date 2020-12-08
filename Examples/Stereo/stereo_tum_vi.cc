@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     for (seq = 0; seq<num_seq; seq++)
     {
         cout << "Loading images for sequence " << seq << "...";
-        LoadImages(string(argv[(3*seq)+3]), string(argv[(2*seq)+4]), string(argv[(2*seq)+5]), vstrImageLeftFilenames[seq], vstrImageRightFilenames[seq], vTimestampsCam[seq]);
+        LoadImages(string(argv[(3*seq)+3]), string(argv[(3*seq)+4]), string(argv[(3*seq)+5]), vstrImageLeftFilenames[seq], vstrImageRightFilenames[seq], vTimestampsCam[seq]);
         cout << "Total images: " << vstrImageLeftFilenames[seq].size() << endl;
         cout << "Total cam ts: " << vTimestampsCam[seq].size() << endl;
         cout << "first cam ts: " << vTimestampsCam[seq][0] << endl;
@@ -113,10 +113,16 @@ int main(int argc, char **argv)
 
             double tframe = vTimestampsCam[seq][ni];
 
-            if(imLeft.empty() || imRight.empty())
+            if(imLeft.empty())
             {
-                cerr << endl << "Failed to load image at: "
+                cerr << endl << "Failed to load left image at: "
                      <<  vstrImageLeftFilenames[seq][ni] << endl;
+                return 1;
+            }
+            else if(imRight.empty())
+            {
+                cerr << endl << "Failed to load right image at: "
+                     <<  vstrImageRightFilenames[seq][ni] << endl;
                 return 1;
             }
 

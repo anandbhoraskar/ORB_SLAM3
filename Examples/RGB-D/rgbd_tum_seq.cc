@@ -156,6 +156,12 @@ int main(int argc, char **argv)
             if(ttrack<T)
                 usleep((T-ttrack)*1e6);
         }
+
+        // // sleep for 10s for BA to complete
+        // cout << "Sleeping for 10s" << endl;
+        // std::this_thread::sleep_for(std::chrono::microseconds(10000));
+        // this doesn't make this thread to sleep...
+        
         if(seq < num_seq - 1)
         {
             cout << "Changing the dataset" << endl;
@@ -163,6 +169,8 @@ int main(int argc, char **argv)
             SLAM.ChangeDataset();
         }
     }
+
+
 
     // Stop all threads
     SLAM.Shutdown();
