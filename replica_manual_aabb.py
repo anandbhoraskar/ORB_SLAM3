@@ -18,11 +18,14 @@ import json
 import skimage.io
 import argparse
 import progressbar
+import pickle as pkl
+from scipy.spatial.transform import Rotation
+from utils import quat_from_coeffs, quat_to_coeffs
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--mapname", default="frl_apartment_0", help="Name of the map in Replica dataset")
-parser.add_argument("-p", "--datapath", default="/media/rpl/Data/mscvLongterm/habitat/Replica-Dataset/out", help="path to the replica dataset")
-parser.add_argument("-o", "--outpath", default="/media/rpl/Data/mscvLongterm/habitat/generated", help="path to the replica dataset")
+parser.add_argument("-p", "--datapath", default="/media/prakhar/BIG_BAG/Replica-Dataset", help="path to the replica dataset")
+parser.add_argument("-o", "--outpath", default="/media/prakhar/BIG_BAG/Capstone/habitat", help="path to the replica dataset")
 args = parser.parse_args()
 
 mapname = args.mapname
@@ -31,18 +34,51 @@ object_json = "{}/{}/habitat/info_semantic.json".format(args.datapath, mapname)
 
 # Read world transform np
 # TODO
-Twl = np.eye(4)
+with open(args.mapname[:-2]+"_transforms.pkl","rb") as fp:
+    dict_transforms = pkl.load(fp)
+Twl = dict_transforms[args.mapname]
+# Twl = np.linalg.inv(Twl)
+Tlw = np.linalg.inv(Twl)
 
-def World2Local(p_w):
-    # TODO
-    p_l = p_w.clone()
-    return p_l
+def World2Local(p_w, r_w_quat):
+    #r_w: [x,y,z,w]
+    #np.quat form: [w,x,y,z]
+    # st()
+    r_w = quat_to_coeffs(r_w_quat)
+    P = p_w.reshape((3,1))
+    P = np.concatenate((P, np.ones((1,1))), axis=0)
+    Pl = Tlw@P
+    p_l = Pl[:3].flatten()
 
-def Local2World(p_l, r_l):
     # TODO
-    p_l = p_w.clone()
-    r_w
-    return p_w, r_w
+    Rw = Rotation.from_quat(r_w)
+    Rwmat = Rw.as_dcm()
+    # st()
+    # print(Rwmat)
+    Rlmat = Tlw[:3,:3]@Rwmat
+    Rl = Rotation.from_dcm(Rlmat)
+    r_l = Rl.as_quat()
+    quat_r_l = quat_from_coeffs(r_l)
+    print(p_l, quat_r_l)
+    return p_l, quat_r_l
+
+def Local2World(p_l, r_l_quat):
+    # TODO
+    r_l = quat_to_coeffs(r_l_quat)
+    Pl = p_l.reshape((3,1))
+    Pl = np.concatenate((Pl, np.ones((1,1))), axis=0)
+    Pw = Twl@Pl
+    p_w = Pw[:3].flatten()
+
+    # TODO
+    Rl = Rotation.from_quat(r_l)
+    Rlmat = Rl.as_dcm()
+    Rwmat = Twl[:3,:3]@Rlmat
+    Rw = Rotation.from_dcm(Rwmat)
+    r_w = Rw.as_quat()
+    print(p_w, r_w)
+    quat_r_w = quat_from_coeffs(r_w)
+    return p_w, quat_r_w
 
 
 # object_id_to_obj_map = get_obj_id_to_obj_info_map(object_json)
@@ -144,10 +180,15 @@ sim.seed(sim_settings["seed"])
 agent = sim.initialize_agent(sim_settings["default_agent"])
 agent_state = habitat_sim.AgentState()
 
-initial_position_world = np.array([1.5, 1.072447, 0.0])
-initial_position = World2Local(initial_position_world)
+# st()
+
+initial_position_world = np.array([ 1.5177672, -1.4410627,  4.8951297])
+initial_quat_world = quat_from_coeffs(np.array([0, -0.469471454620361, 0, -0.882947683334351]))
+
+initial_position, initial_quat = World2Local(initial_position_world, initial_quat_world)
 
 agent_state.position = initial_position
+agent_state.rotation = initial_quat
 agent.set_state(agent_state)
 
 # Get agent state
@@ -212,7 +253,7 @@ def save_datapoint(agent, observations, data_path, timestamp:str, assoc_file, gt
             continue
         try:
             class_name = sim.semantic_scene.objects[obj_id].category.name()
-            print("Class name is : ", class_name)
+            # print("Class name is : ", class_name)
         except Exception as e:
             print(e)
             st()
@@ -274,7 +315,7 @@ time_increment = 1/frame_rate
 
 data_folder = None
 data_path = None
-basepath = "/media/rpl/Data/mscvLongterm/habitat/generated"
+basepath = args.outpath
 
 data_folder = mapname + "_" + str(int(time.time()))
 
