@@ -34,8 +34,14 @@ int main(int argc, char **argv)
 {
     if(argc < 6)
     {
-        cerr << endl << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings (path_to_sequence1 path_to_association1) ... (path_to_sequenceN path_to_associationN) (trajectory_file_name)" << endl;
+        cerr << endl << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings (path_to_sequence1 path_to_association1) ... (path_to_sequenceN path_to_associationN) (trajectory_file_name) [prune]" << endl;
         return 1;
+    }
+
+    bool bPrunePoints = false;
+    if(strcmp("prune", argv[argc-1]) == 0) {
+        bPrunePoints = true;
+        argc--;
     }
 
     const int num_seq = (argc-3)/2;
@@ -90,9 +96,14 @@ int main(int argc, char **argv)
 
     }
 
+    if(bPrunePoints)
+        cout << "\n\n\npruning system in use.\n\n\n" << endl;
+    else
+        cout << "\n\n\npruning system NOT in use\n\n\n" << endl;
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::RGBD,true);
+    SLAM.setPrunePoints(bPrunePoints);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;

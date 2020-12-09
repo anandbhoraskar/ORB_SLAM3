@@ -907,6 +907,10 @@ bool System::isFinished()
 
 void System::ChangeDataset()
 {
+    if(mpTracker->mbPrunePoints){
+        mpAtlas->PrunePoints();
+    }
+
     if(mpAtlas->GetCurrentMap()->KeyFramesInMap() < 12)
     {
         mpTracker->ResetActiveMap();
@@ -1067,6 +1071,10 @@ string System::CalculateCheckSum(string filename, int type)
 
     return checksum;
 }*/
+
+void System::setPrunePoints(bool val) {
+    mpTracker->mbPrunePoints = val;
+}
 
 } //namespace ORB_SLAM
 

@@ -178,6 +178,8 @@ public:
 
     void ChangeDataset();
 
+    void setPrunePoints(bool val);
+
     //void SaveAtlas(int type);
 
 private:

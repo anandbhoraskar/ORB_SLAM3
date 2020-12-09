@@ -170,6 +170,9 @@ public:
 
     bool mbWriteStats;
 
+    // Set to true if we want to prune points when changing datasets
+    bool mbPrunePoints;
+
 protected:
 
     // Main tracking function. It is independent of the input sensor.

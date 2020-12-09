@@ -376,4 +376,18 @@ long unsigned int Atlas::GetNumLivedMP() {
     return num;
 }
 
+void Atlas::PrunePoints() {
+    cout << "Atlas.cc:380" << endl;
+    unique_lock<mutex> lock(mMutexAtlas);
+    cout << "Atlas.cc:382" << endl;
+    cout << "Num maps = " << mspMaps.size() << endl;
+    long unsigned int num = 0;
+    for (Map *mMAPi : mspMaps) {
+        if(!mMAPi) {
+            cout << "~mMAPi" << endl;
+        }
+        mMAPi->PrunePoints();
+    }
+}
+
 } //namespace ORB_SLAM3

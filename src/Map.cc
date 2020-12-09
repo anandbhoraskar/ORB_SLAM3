@@ -638,5 +638,14 @@ void Map::PostLoad(KeyFrameDatabase* pKFDB, ORBVocabulary* pORBVoc, map<long uns
     mvpBackupMapPoints.clear();
 }
 
+void Map::PrunePoints() {
+    cout << "Map.cc:642" << endl;
+    // unique_lock<mutex> lock(mMutexMap);
+    cout << "Map.cc:644" << endl;
+    for(MapPoint* pMPi : mspMapPoints)
+        if(pMPi->isDynamic) {
+            pMPi->SetBadFlag();
+        }
+}
 
 } //namespace ORB_SLAM3

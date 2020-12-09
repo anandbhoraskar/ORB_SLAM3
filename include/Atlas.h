@@ -136,6 +136,8 @@ public:
 
     long unsigned int GetNumLivedMP();
 
+    void PrunePoints();
+
 protected:
 
     std::set<Map*> mspMaps;
