@@ -24,6 +24,8 @@ from utils import quat_from_coeffs, quat_to_coeffs
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--mapname", default="frl_apartment_0", help="Name of the map in Replica dataset")
+# parser.add_argument("-p", "--datapath", default="/media/rpl/Data/mscvLongterm/habitat/Replica-Dataset/out", help="path to the replica dataset")
+# parser.add_argument("-o", "--outpath", default="/media/rpl/Data/mscvLongterm/habitat/generated", help="path to the replica dataset")
 parser.add_argument("-p", "--datapath", default="/media/prakhar/BIG_BAG/Replica-Dataset", help="path to the replica dataset")
 parser.add_argument("-o", "--outpath", default="/media/prakhar/BIG_BAG/Capstone/habitat", help="path to the replica dataset")
 args = parser.parse_args()
