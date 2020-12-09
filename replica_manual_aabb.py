@@ -21,6 +21,7 @@ import progressbar
 import pickle as pkl
 from scipy.spatial.transform import Rotation
 from utils import quat_from_coeffs, quat_to_coeffs
+from datetime import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--mapname", default="frl_apartment_0", help="Name of the map in Replica dataset")
@@ -293,7 +294,7 @@ def save_datapoint(agent, observations, data_path, timestamp:str, assoc_file, gt
     px, py, pz = color_sensor_pos_global
     qx, qy, qz, qw = quat_to_coeffs(color_sensor_rot_global)
 
-    gt_file.write(f"{px} {py} {pz} {qx} {qy} {qz} {qw}\n")
+    gt_file.write(f"{timestamp} {px} {py} {pz} {qx} {qy} {qz} {qw}\n")
 
     pickle_filename = os.path.join(data_path, timestamp + ".p")
     with open(pickle_filename, 'wb') as f:
@@ -319,7 +320,7 @@ data_folder = None
 data_path = None
 basepath = args.outpath
 
-data_folder = mapname + "_" + str(int(time.time()))
+data_folder = datetime.now().strftime("%Y%m%d_h%H_m%M_s%S_") + mapname
 
 timestamp = float(time.time())
 data_path = os.path.join(basepath, data_folder)
