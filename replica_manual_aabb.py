@@ -29,6 +29,21 @@ mapname = args.mapname
 test_scene = "{}/{}/habitat/mesh_semantic.ply".format(args.datapath, mapname)
 object_json = "{}/{}/habitat/info_semantic.json".format(args.datapath, mapname)
 
+# Read world transform np
+# TODO
+Twl = np.eye(4)
+
+def World2Local(p_w):
+    # TODO
+    p_l = p_w.clone()
+    return p_l
+
+def Local2World(p_l, r_l):
+    # TODO
+    p_l = p_w.clone()
+    r_w
+    return p_w, r_w
+
 
 # object_id_to_obj_map = get_obj_id_to_obj_info_map(object_json)
 ignore_classes = ['base-cabinet','beam','blanket','blinds','cloth','clothing','coaster','comforter','curtain','ceiling','countertop','floor','handrail','mat','paper-towel','picture','pillar','pipe','scarf','shower-stall','switch','tissue-paper','towel','vent','wall','wall-plug','window','rug','logo','set-of-clothing']
@@ -98,22 +113,22 @@ def make_cfg(settings):
     agent_cfg.sensor_specifications = sensor_specs
     agent_cfg.action_space = {
         "move_forward": habitat_sim.agent.ActionSpec(
-            "move_forward", habitat_sim.agent.ActuationSpec(amount=0.1)
+            "move_forward", habitat_sim.agent.ActuationSpec(amount=0.05)
         ),
         "move_back": habitat_sim.agent.ActionSpec(
-            "move_forward", habitat_sim.agent.ActuationSpec(amount=-0.1)
+            "move_forward", habitat_sim.agent.ActuationSpec(amount=-0.05)
         ),
         "turn_left": habitat_sim.agent.ActionSpec(
-            "turn_left", habitat_sim.agent.ActuationSpec(amount=5.0)
+            "turn_left", habitat_sim.agent.ActuationSpec(amount=2.0)
         ),
         "turn_right": habitat_sim.agent.ActionSpec(
-            "turn_right", habitat_sim.agent.ActuationSpec(amount=5.0)
+            "turn_right", habitat_sim.agent.ActuationSpec(amount=2.0)
         ),
         "look_up":habitat_sim.ActionSpec(
-            "look_up", habitat_sim.ActuationSpec(amount=5.0)
+            "look_up", habitat_sim.ActuationSpec(amount=2.0)
         ),
         "look_down":habitat_sim.ActionSpec(
-            "look_down", habitat_sim.ActuationSpec(amount=5.0)
+            "look_down", habitat_sim.ActuationSpec(amount=2.0)
         )
     }
 
@@ -128,9 +143,11 @@ sim.seed(sim_settings["seed"])
 # Set agent state
 agent = sim.initialize_agent(sim_settings["default_agent"])
 agent_state = habitat_sim.AgentState()
-agent_state.position = np.array([1.5, 1.072447, 0.0])
-# agent_state.position = np.array([2.875, 1.4252348, 3.4811885])
-#agent_state.position = np.array([1.0, 3.0, 1.0])
+
+initial_position_world = np.array([1.5, 1.072447, 0.0])
+initial_position = World2Local(initial_position_world)
+
+agent_state.position = initial_position
 agent.set_state(agent_state)
 
 # Get agent state
@@ -224,15 +241,14 @@ def save_datapoint(agent, observations, data_path, timestamp:str, assoc_file, gt
     # save depth
     depth_path = os.path.join('depth', timestamp+".png")
     # skimage.io.imsave(depth_path, save_data['depth_camX'])
-    # TODO: confirm depth scale
-
 
     # save_data = {'objects_info': object_list,'rgb_camX':rgb, 'depth_camX': depth, 'semantic_camX': semantic, 'agent_pos':agent_pos, 'agent_rot': agent_rot, 'sensor_pos': color_sensor_pos, 'sensor_rot': color_sensor_rot}
     save_data = {'timestamp':timestamp, 'rgb_camX':rgb, 'depth_camX': depth, 'sensor_pos': color_sensor_pos, 'sensor_rot': color_sensor_rot}
 
     assoc_file.write(f"{timestamp} {color_path} {timestamp} {depth_path}\n")
-    px, py, pz = color_sensor_pos
-    qx, qy, qz, qw = quat_to_coeffs(color_sensor_rot)
+    color_sensor_pos_global, color_sensor_rot_global = Local2World(color_sensor_pos, color_sensor_rot)
+    px, py, pz = color_sensor_pos_global
+    qx, qy, qz, qw = quat_to_coeffs(color_sensor_rot_global)
 
     gt_file.write(f"{px} {py} {pz} {qx} {qy} {qz} {qw}\n")
 
