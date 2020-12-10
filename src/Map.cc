@@ -97,7 +97,9 @@ bool Map::isImuInitialized()
 
 void Map::EraseMapPoint(MapPoint *pMP)
 {
+    // cout << "Map.cc:100" << endl;
     unique_lock<mutex> lock(mMutexMap);
+    // cout << "Map.cc:102" << endl;
     mspMapPoints.erase(pMP);
 
     // TODO: This only erase the pointer.
@@ -640,12 +642,36 @@ void Map::PostLoad(KeyFrameDatabase* pKFDB, ORBVocabulary* pORBVoc, map<long uns
 
 void Map::PrunePoints() {
     cout << "Map.cc:642" << endl;
-    // unique_lock<mutex> lock(mMutexMap);
+    unique_lock<mutex> lock(mMutexMapUpdate);
     cout << "Map.cc:644" << endl;
-    for(MapPoint* pMPi : mspMapPoints)
-        if(pMPi->isDynamic) {
-            pMPi->SetBadFlag();
+    for(auto it = mspMapPoints.begin(); it != mspMapPoints.end(); ) {
+        cout << "Map.cc:648 " << endl;
+        MapPoint* pMPi = (*it);
+        cout << "Map.cc:650 " << endl;
+        if(pMPi == NULL) {
+            cout << "NULL Point" << endl;
         }
+        else if(true) {
+            cout << "Map.cc:652 " << endl;
+            try{
+                if(pMPi->isDynamic){
+                    cout << "Map.cc:654 " << endl;
+                    pMPi->SetBadFlag();
+                    cout << "Map.cc:654 " << endl;
+                }
+            }
+            catch (int e) {
+                cout << "Exception Occured : " << e << endl;
+            }
+            cout << "Map.cc:652 " << endl;
+            // delete(pMPi);
+            cout << "Map.cc:654 " << endl;
+        }
+        cout << "Map.cc:662" << endl;
+        it++;
+        cout << "Map.cc:665" << endl; 
+    }
+    cout << "Map.cc:667" << endl;
 }
 
 } //namespace ORB_SLAM3

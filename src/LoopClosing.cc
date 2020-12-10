@@ -392,7 +392,7 @@ bool LoopClosing::NewDetectCommonRegions()
             mg2oMergeSlw = gScw;
             mvpMergeMatchedMPs = vpMatchedMPs;
 
-            mbMergeDetected = mnMergeNumCoincidences >= 3;
+            mbMergeDetected = mnMergeNumCoincidences >= 1;
         }
         else
         {
@@ -510,15 +510,15 @@ bool LoopClosing::DetectAndReffineSim3FromLastKF(KeyFrame* pCurrentKF, KeyFrame*
     cout << "REFFINE-SIM3: Projection from last KF with " << nNumProjMatches << " matches" << endl;
 
 
-    int nProjMatches = 30;
-    int nProjOptMatches = 50;
-    int nProjMatchesRep = 100;
+    int nProjMatches = 25;
+    int nProjOptMatches = 40;
+    int nProjMatchesRep = 60;
 
     /*if(mpTracker->mSensor==System::IMU_MONOCULAR ||mpTracker->mSensor==System::IMU_STEREO)
     {
-        nProjMatches = 50;
+        nProjMatches = 30;
         nProjOptMatches = 50;
-        nProjMatchesRep = 80;
+        nProjMatchesRep = 100;
     }*/
 
     if(nNumProjMatches >= nProjMatches)
@@ -560,11 +560,17 @@ bool LoopClosing::DetectAndReffineSim3FromLastKF(KeyFrame* pCurrentKF, KeyFrame*
 bool LoopClosing::DetectCommonRegionsFromBoW(std::vector<KeyFrame*> &vpBowCand, KeyFrame* &pMatchedKF2, KeyFrame* &pLastCurrentKF, g2o::Sim3 &g2oScw,
                                              int &nNumCoincidences, std::vector<MapPoint*> &vpMPs, std::vector<MapPoint*> &vpMatchedMPs)
 {
-    int nBoWMatches = 20;
-    int nBoWInliers = 15;
-    int nSim3Inliers = 20;
-    int nProjMatches = 50;
-    int nProjOptMatches = 80;
+    // int nBoWMatches = 20;
+    // int nBoWInliers = 15;
+    // int nSim3Inliers = 20;
+    // int nProjMatches = 50;
+    // int nProjOptMatches = 80;
+
+    int nBoWMatches = 15;
+    int nBoWInliers = 12;
+    int nSim3Inliers = 15;
+    int nProjMatches = 30;
+    int nProjOptMatches = 40;
     /*if(mpTracker->mSensor==System::IMU_MONOCULAR ||mpTracker->mSensor==System::IMU_STEREO)
     {
         nBoWMatches = 20;
@@ -863,9 +869,17 @@ bool LoopClosing::DetectCommonRegionsFromBoW(std::vector<KeyFrame*> &vpBowCand, 
 
 
                         }
+                        else {
+                            cout << "numProjOptMatches < nProjOptMatches" << endl;
+                        }
 
                     }
-
+                    else {
+                        cout << "numOptMatches < nSim3Inliers" << endl;
+                    }
+                }
+                else {
+                    cout << "numProjMatches < nProjMatches" << endl;
                 }
             }
         }
@@ -882,7 +896,7 @@ bool LoopClosing::DetectCommonRegionsFromBoW(std::vector<KeyFrame*> &vpBowCand, 
         vpMPs = vpBestMapPoints;
         vpMatchedMPs = vpBestMatchedMapPoints;
 
-        return nNumCoincidences >= 3;
+        return nNumCoincidences >= 1;
     }
     else
     {

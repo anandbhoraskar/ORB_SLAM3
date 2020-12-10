@@ -1063,7 +1063,12 @@ int Optimizer::PoseOptimization(Frame *pFrame)
         vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
         optimizer.initializeOptimization(0);
         //  cout << "begin optimize" << endl;
-        optimizer.optimize(its[it]);
+        try {
+            optimizer.optimize(its[it]);
+        }
+        catch (int e) {
+            cout << "Optimize exception " << e << endl;
+        }
         //  cout << "end optimize" << endl;
 
         nBad=0;
