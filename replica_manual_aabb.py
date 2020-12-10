@@ -152,16 +152,16 @@ def make_cfg(settings):
     agent_cfg.sensor_specifications = sensor_specs
     agent_cfg.action_space = {
         "move_forward": habitat_sim.agent.ActionSpec(
-            "move_forward", habitat_sim.agent.ActuationSpec(amount=0.05)
+            "move_forward", habitat_sim.agent.ActuationSpec(amount=0.5)
         ),
         "move_back": habitat_sim.agent.ActionSpec(
-            "move_forward", habitat_sim.agent.ActuationSpec(amount=-0.05)
+            "move_forward", habitat_sim.agent.ActuationSpec(amount=-0.5)
         ),
         "turn_left": habitat_sim.agent.ActionSpec(
-            "turn_left", habitat_sim.agent.ActuationSpec(amount=2.0)
+            "turn_left", habitat_sim.agent.ActuationSpec(amount=40.0)
         ),
         "turn_right": habitat_sim.agent.ActionSpec(
-            "turn_right", habitat_sim.agent.ActuationSpec(amount=2.0)
+            "turn_right", habitat_sim.agent.ActuationSpec(amount=40.0)
         ),
         "look_up":habitat_sim.ActionSpec(
             "look_up", habitat_sim.ActuationSpec(amount=2.0)
@@ -330,8 +330,8 @@ os.mkdir(color_path)
 depth_path = os.path.join(data_path, "depth")
 os.mkdir(depth_path)
 
-assoc_filename = data_folder+"_assoc.txt"
-gt_filename = data_folder+"_gt.txt"
+assoc_filename = "assoc.txt"
+gt_filename = "gt.txt"
 assoc_file = open(os.path.join(data_path, assoc_filename), 'w')
 gt_file = open(os.path.join(data_path, gt_filename), 'w')
 
@@ -346,6 +346,11 @@ pickle_filenames = []
 #         if np.sum(obj.aabb.center) != 0:
 #             st()
 #             print("success")
+lskeys = ["w","d"]*12 
+lskeys += ["q"]
+lskeys = [ord(ch) for ch in lskeys]
+curr_ind = 0
+
 while total_frames < max_frames:
 
     action = "move_forward"
@@ -361,6 +366,9 @@ while total_frames < max_frames:
 
     
     keystroke = cv2.waitKey(0)
+    # keystroke = lskeys[curr_ind]
+    curr_ind+=1
+
     print("keystroke: ", keystroke)
 
     if( 255!=keystroke and keystroke!=(-1) ):  
