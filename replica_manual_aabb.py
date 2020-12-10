@@ -155,7 +155,7 @@ def make_cfg(settings):
             "move_forward", habitat_sim.agent.ActuationSpec(amount=0.05)
         ),
         "move_back": habitat_sim.agent.ActionSpec(
-            "move_forward", habitat_sim.agent.ActuationSpec(amount=-0.5)
+            "move_forward", habitat_sim.agent.ActuationSpec(amount=-0.05)
         ),
         "turn_left": habitat_sim.agent.ActionSpec(
             "turn_left", habitat_sim.agent.ActuationSpec(amount=2.0)
