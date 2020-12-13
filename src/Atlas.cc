@@ -382,12 +382,35 @@ void Atlas::PrunePoints() {
     cout << "Atlas.cc:382" << endl;
     cout << "Num maps = " << mspMaps.size() << endl;
     long unsigned int num = 0;
+
+    int numPointsBefore = 0;
+    for (Map *mMAPi : mspMaps) {
+        numPointsBefore += mMAPi->GetAllMapPoints().size();
+    }
+
+
     for (Map *mMAPi : mspMaps) {
         if(!mMAPi) {
             cout << "~mMAPi" << endl;
         }
         mMAPi->PrunePoints();
     }
+
+    int numPointsAfter = 0;
+    for (Map *mMAPi : mspMaps) {
+        numPointsAfter += mMAPi->GetAllMapPoints().size();
+    }
+
+    cout << "NUMBER OF POINTS BEFORE = " << numPointsBefore << endl;
+    cout << "NUMBER OF POINTS AFTER = " << numPointsAfter << endl;
+}
+
+void Atlas::PrintNumPoints() {
+    int numPoints = 0;
+    for (Map *mMAPi : mspMaps) {
+        numPoints += mMAPi->GetAllMapPoints().size();
+    }
+    cout << "NUMBER OF POINTS = " << numPoints << endl;
 }
 
 } //namespace ORB_SLAM3

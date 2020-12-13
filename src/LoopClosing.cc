@@ -568,7 +568,7 @@ bool LoopClosing::DetectCommonRegionsFromBoW(std::vector<KeyFrame*> &vpBowCand, 
 
     int nBoWMatches = 15;
     int nBoWInliers = 12;
-    int nSim3Inliers = 15;
+    int nSim3Inliers = 10;
     int nProjMatches = 30;
     int nProjOptMatches = 40;
     /*if(mpTracker->mSensor==System::IMU_MONOCULAR ||mpTracker->mSensor==System::IMU_STEREO)

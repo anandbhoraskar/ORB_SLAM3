@@ -137,6 +137,7 @@ public:
     long unsigned int GetNumLivedMP();
 
     void PrunePoints();
+    void PrintNumPoints();
 
 protected:
 

@@ -463,10 +463,10 @@ void System::Shutdown()
     // Wait until all thread have effectively stopped
     while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
     {
-        if(!mpLocalMapper->isFinished())
-            cout << "mpLocalMapper is not finished" << endl;
-        if(!mpLoopCloser->isFinished())
-            cout << "mpLoopCloser is not finished" << endl;
+        // if(!mpLocalMapper->isFinished())
+        //     cout << "mpLocalMapper is not finished" << endl;
+        // if(!mpLoopCloser->isFinished())
+        //     cout << "mpLoopCloser is not finished" << endl;
         if(mpLoopCloser->isRunningGBA()){
             cout << "mpLoopCloser is running GBA" << endl;
             cout << "break anyway..." << endl;
@@ -909,6 +909,9 @@ void System::ChangeDataset()
 {
     if(mpTracker->mbPrunePoints){
         mpAtlas->PrunePoints();
+    }
+    else {
+        mpAtlas->PrintNumPoints();
     }
 
     if(mpAtlas->GetCurrentMap()->KeyFramesInMap() < 12)

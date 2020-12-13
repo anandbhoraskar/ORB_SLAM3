@@ -209,7 +209,14 @@ void MapDrawer::DrawMapPoints()
 
     glPointSize(mPointSize);
     glBegin(GL_POINTS);
-    glColor4f(0.0,1.0,0.0, 1.0);
+    if(mShowToPrunePoints) {
+        glColor4f(0.0,1.0,0.0, 1.0);
+    }
+    else
+    {
+        glColor4f(1.0,0.0,0.0, 1.0);
+    }
+    
 
     if(mShowToPrunePoints) {
         for(auto dit=dynamicPoints.begin(), dend=dynamicPoints.end(); dit!=dend; dit++)
@@ -226,7 +233,11 @@ void MapDrawer::DrawMapPoints()
 
     glPointSize(mPointSize);
     glBegin(GL_POINTS);
-    glColor4f(0.0,1.0,1.0, 0.4);
+    if(mShowToPrunePoints) {
+        glColor4f(0.0,1.0,1.0, 0.4);
+    } else {
+        glColor4f(1.0,0.0,0.0, 1.0);
+    }
 
     if(mShowToPrunePoints) {
         for(auto dit=unknownDepthPoints.begin(), dend=unknownDepthPoints.end(); dit!=dend; dit++)
