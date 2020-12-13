@@ -1,5 +1,18 @@
 # ORB-SLAM3
 
+Commands run to generate results:
+// //    012
+//    std::string str = "exe /home/rpl/mscvLongterm/ORB_SLAM3/Vocabulary/ORBvoc.txt /home/rpl/mscvLongterm/ORB_SLAM3/Examples/RGB-D/replica.yaml /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_0_1607517702/  /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_0_1607517702/frl_apartment_0_1607517702_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_1_1607520143/  /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_1_1607520143/frl_apartment_1_1607520143_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_2_1607520327/  /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_2_1607520327/frl_apartment_2_1607520327_assoc.txt prune_012 prune";   
+
+//    std::string str = "exe /home/rpl/mscvLongterm/ORB_SLAM3/Vocabulary/ORBvoc.txt /home/rpl/mscvLongterm/ORB_SLAM3/Examples/RGB-D/replica.yaml /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_0_1607517702/  /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_0_1607517702/frl_apartment_0_1607517702_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_1_1607520143/  /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_1_1607520143/frl_apartment_1_1607520143_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_2_1607520327/  /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_2_1607520327/frl_apartment_2_1607520327_assoc.txt noprune_012";   
+
+// // 345
+//   std::string str = "exe /home/rpl/mscvLongterm/ORB_SLAM3/Vocabulary/ORBvoc.txt /home/rpl/mscvLongterm/ORB_SLAM3/Examples/RGB-D/replica.yaml /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_3_1607540625/   /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_3_1607540625/frl_apartment_3_1607540625_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_4_1607540733/ /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_4_1607540733/frl_apartment_4_1607540733_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_5_1607541160/ /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_5_1607541160/frl_apartment_5_1607541160_assoc.txt noprune_345";
+
+//   std::string str = "exe /home/rpl/mscvLongterm/ORB_SLAM3/Vocabulary/ORBvoc.txt /home/rpl/mscvLongterm/ORB_SLAM3/Examples/RGB-D/replica.yaml /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_3_1607540625/   /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_3_1607540625/frl_apartment_3_1607540625_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_4_1607540733/ /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_4_1607540733/frl_apartment_4_1607540733_assoc.txt /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_5_1607541160/ /media/rpl/Data/mscvLongterm/habitat/generated/frl_apartment_5_1607541160/frl_apartment_5_1607541160_assoc.txt prune_345 prune";
+
+
+
 ### V0.3: Beta version, 4 Sep 2020
 **Authors:** Carlos Campos, Richard Elvira, Juan J. Gómez Rodríguez, [José M. M. Montiel](http://webdiis.unizar.es/~josemari/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/).
 
